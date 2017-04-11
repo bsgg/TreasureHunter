@@ -1,0 +1,158 @@
+fileFormatVersion: 2
+guid: f568bdf36f7ae1a4d8b6e45fa8893764
+timeCreated: 1473060968
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Letter_00
+    100002: Letter_01
+    100004: Letter_02
+    100006: Letter_03
+    100008: Letter_04
+    100010: Letter_05
+    100012: Letter_06
+    100014: Letter_07
+    100016: Letter_08
+    100018: Letter_09
+    100020: Letter_10
+    100022: Letter_11
+    100024: Letter_12
+    100026: Letter_13
+    100028: Letter_14
+    100030: Letter_15
+    100032: Letter_16
+    100034: //RootNode
+    400000: Letter_00
+    400002: Letter_01
+    400004: Letter_02
+    400006: Letter_03
+    400008: Letter_04
+    400010: Letter_05
+    400012: Letter_06
+    400014: Letter_07
+    400016: Letter_08
+    400018: Letter_09
+    400020: Letter_10
+    400022: Letter_11
+    400024: Letter_12
+    400026: Letter_13
+    400028: Letter_14
+    400030: Letter_15
+    400032: Letter_16
+    400034: //RootNode
+    2300000: Letter_00
+    2300002: Letter_01
+    2300004: Letter_02
+    2300006: Letter_03
+    2300008: Letter_04
+    2300010: Letter_05
+    2300012: Letter_06
+    2300014: Letter_07
+    2300016: Letter_08
+    2300018: Letter_09
+    2300020: Letter_10
+    2300022: Letter_11
+    2300024: Letter_12
+    2300026: Letter_13
+    2300028: Letter_14
+    2300030: Letter_15
+    2300032: Letter_16
+    3300000: Letter_00
+    3300002: Letter_01
+    3300004: Letter_02
+    3300006: Letter_03
+    3300008: Letter_04
+    3300010: Letter_05
+    3300012: Letter_06
+    3300014: Letter_07
+    3300016: Letter_08
+    3300018: Letter_09
+    3300020: Letter_10
+    3300022: Letter_11
+    3300024: Letter_12
+    3300026: Letter_13
+    3300028: Letter_14
+    3300030: Letter_15
+    3300032: Letter_16
+    4300000: Letter_16
+    4300002: Letter_15
+    4300004: Letter_14
+    4300006: Letter_13
+    4300008: Letter_12
+    4300010: Letter_11
+    4300012: Letter_10
+    4300014: Letter_09
+    4300016: Letter_08
+    4300018: Letter_07
+    4300020: Letter_06
+    4300022: Letter_05
+    4300024: Letter_04
+    4300026: Letter_03
+    4300028: Letter_00
+    4300030: Letter_01
+    4300032: Letter_02
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,46 @@
+
+{
+	"TreasureHunterClues":
+	[	
+		{
+			"ID": "Clue0",
+      "Clue": "Look at us how cute and nice couple we are! and... don't forget that creepy owl staring at you...",
+      "Active":  true			
+		},
+		{
+			"ID": "Clue1",
+			"Clue": "You spend hours and hours with this device. Drawing most of the time and... there are two of them.",
+      "Active":  false						
+		},
+		{
+			"ID": "Clue2",
+			"Clue": "Good smells comes from this place and good tastes as well.  Where to find the next clue? Look for some utensils to cook!",
+      "Active":  false							
+		},
+		{
+			"ID": "Clue3",
+			"Clue": "Easy-peasy-Lemon-Squeezy  bathroom, towels, something hot.",
+      "Active":  false							
+		},
+		{
+			"ID": "Clue4",
+			"Clue": "Look for something large and grey and could be use to sit on it...",
+      "Active":  false							
+		},
+		{
+			"ID": "Clue5",
+			"Clue": "Yeah!! You happy? Back to the hallway, look for a really messy place full of.... tools, board games... stuff?",
+      "Active":  false							
+		},
+		{
+			"ID": "Clue6",
+			"Clue": "Nop... sorry not yet... but find an object which we need to go to spain. Hint: The blue one!!",
+      "Active":  false							
+		},
+    {
+      "ID": "Clue7",
+      "Clue": "Well done! You found all the clues. Happy Birthday Ivan. I love you!! \n (Tap to continue)",
+      "Active":  false				
+    }
+	] 	
+}
