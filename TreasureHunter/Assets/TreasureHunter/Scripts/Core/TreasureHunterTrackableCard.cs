@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace TreasureHunt
 {
-    public class TreasureHunterTrackableCard : MonoBehaviour, ITrackableEventHandler    
+    public class TrackableCard : MonoBehaviour, ITrackableEventHandler    
     {
         [SerializeField] private GameObject m_ConfetiPrefab;
         private GameObject m_Confeti;

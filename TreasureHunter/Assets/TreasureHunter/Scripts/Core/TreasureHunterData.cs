@@ -5,7 +5,7 @@ using LitJson;
 
 namespace TreasureHunt
 {
-    public class TreasureHunterClue
+    /*public class TreasureHunterClue
     {
         public string ID;
         public string Clue;
@@ -88,5 +88,5 @@ namespace TreasureHunt
             return m_TreasureDictionary.GetClueByID(id);
         }
 
-    }
+    }*/
 }

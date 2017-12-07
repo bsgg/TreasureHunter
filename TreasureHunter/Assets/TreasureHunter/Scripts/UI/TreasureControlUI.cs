@@ -27,5 +27,14 @@ namespace TreasureHunt
             }
         }
 
+
+        [SerializeField]
+        private Text m_DebugTxt;
+        public Text DebugTxt
+        {
+            get { return m_DebugTxt; }
+        }
+
+
     }
 }
