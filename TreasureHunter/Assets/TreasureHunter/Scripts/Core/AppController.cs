@@ -7,6 +7,24 @@ using UnityEngine;
 namespace TreasureHunt
 {
     [System.Serializable]
+    public class IndexFile
+    {
+        public string FileName;
+        public string URL;
+    }
+
+    [System.Serializable]
+    public class FileData
+    {
+        public List<IndexFile> Data;
+        public FileData()
+        {
+            Data = new List<IndexFile>();
+        }
+    }
+
+
+    [System.Serializable]
     public class TreasureData
     {
         public List<string> Data;
@@ -74,32 +92,97 @@ namespace TreasureHunt
         private int m_NumberCluesFound;
 
         [SerializeField]
-        private string m_IntroUrl = "http://beatrizcv.com/Data/Intro.json";
-        [SerializeField]
         private TreasureData m_IntroData;
         [SerializeField]
-        private string m_UrlClues = "http://beatrizcv.com/Data/Clues.json";
-        [SerializeField]
         private TreasureData m_CluesData;
+
+
+        [SerializeField]
+        private string m_FileDataUrl = "http://beatrizcv.com/Data/FileData.json";
+        [SerializeField]
+        private FileData m_FileData;
 
         void Start()
         {
             // Create data
             m_TMessage = TYPEMESSAGE.NONE;
-            m_CluesData = new TreasureData();
+            //m_CluesData = new TreasureData();
             m_NumberCluesFound = 1;
 
 
             StartCoroutine(RequestFiles());
             // Set Intro
-            //DoIntro();
+            DoIntro();
         }
-
-       
 
         private IEnumerator RequestFiles()
         {
-            Debug.Log("[AppController.RetrieveInfo] Start to retrieve info...");
+
+            // Request File data
+            m_FileData = new FileData();
+
+            WWW wwwFile = new WWW(m_FileDataUrl);
+            yield return wwwFile;
+            string jsonData = wwwFile.text;
+            if (!string.IsNullOrEmpty(jsonData))
+            {
+                if (!string.IsNullOrEmpty(jsonData))
+                {
+                    m_FileData = JsonMapper.ToObject<FileData>(jsonData);
+                }
+            }
+
+            yield return new WaitForEndOfFrame();
+            for (int i=0; i<m_FileData.Data.Count; i++)
+            {
+                m_TreasureUI.DebugTxt.text += "Retrieving file: " + m_FileData.Data[i].FileName;
+
+                if (string.IsNullOrEmpty(m_FileData.Data[i].URL))
+                {
+                    continue;
+                }
+                WWW www = new WWW(m_FileData.Data[i].URL);
+
+                float progress = 0.0f;
+                string progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
+                while (!www.isDone)
+                {
+                    progress = www.progress * 100.0f;
+                    progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
+                    m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + www.bytesDownloaded;
+
+
+                    yield return null;
+                }
+
+                progress = www.progress * 100.0f;
+                progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
+                m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + www.bytesDownloaded;
+
+
+                jsonData = www.text;
+                if (!string.IsNullOrEmpty(www.text))
+                {
+                    if (!string.IsNullOrEmpty(www.text))
+                    {
+                        m_TreasureUI.DebugTxt.text += "Data: " + www.text;
+                        if (m_FileData.Data[i].FileName == "Intro")
+                        {
+                            m_IntroData = JsonMapper.ToObject<TreasureData>(www.text);
+                        }else if (m_FileData.Data[i].FileName == "Clues")
+                        {
+                            m_CluesData = JsonMapper.ToObject<TreasureData>(www.text);
+                        }
+
+                    }
+                }
+            }
+            yield return new WaitForEndOfFrame();
+
+
+
+
+            /*Debug.Log("[AppController.RetrieveInfo] Start to retrieve info...");
 
             m_TreasureUI.DebugTxt.text = "Retrieve Intro from: " + m_IntroUrl;
 
@@ -109,14 +192,24 @@ namespace TreasureHunt
             // Retrieve clues
             WWW wwwIntro = new WWW(m_IntroUrl);
 
-            float progress = 0.0f;
+            float progress = wwwIntro.progress * 100.0f;
+            string progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
+
+            m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + wwwIntro.bytesDownloaded;
+
             while (!wwwIntro.isDone)
             {
-                progress = wwwIntro.progress;
-                Debug.Log("[AppController.RetrieveInfo] Progress..."  + progress);
+                progress = wwwIntro.progress * 100.0f;
+                progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
+                m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + wwwIntro.bytesDownloaded;
 
-                m_TreasureUI.DebugTxt.text = "Progress: " + progress;
+                yield return null;
             }
+
+            progress = wwwIntro.progress * 100.0f;
+            progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
+            m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + wwwIntro.bytesDownloaded;
+
             yield return wwwIntro;
 
             Debug.Log("[AppController.RetrieveInfo] End...");
@@ -152,7 +245,7 @@ namespace TreasureHunt
                 }
             }
 
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();*/
         }
 
         void Update()
@@ -178,7 +271,7 @@ namespace TreasureHunt
             m_TreasureUI.MessageUI.Show(true);
             yield return new WaitForSeconds(2.0f);
             m_IndexMessage = 0;
-            //m_TreasureUI.MessageUI.SetMessage(m_IntroMessage[m_IndexMessage], 0.08f, 0.0f);
+            m_TreasureUI.MessageUI.SetMessage(m_IntroData.Data[m_IndexMessage], 0.08f, 0.0f);
             MessagesUI.OnEndShowMessage += OnEndMessageLine;
         }
 
@@ -198,14 +291,14 @@ namespace TreasureHunt
                 if (m_IndexMessage <0)
                 {
 
-                    //m_TreasureUI.MessageUI.SetMessage(m_IntroMessage[m_IndexMessage]);
+                    m_TreasureUI.MessageUI.SetMessage(m_IntroData.Data[m_IndexMessage]);
                 }
                 else
                 {
                     MessagesUI.OnEndShowMessage -= OnEndMessageLine;
                     // Get the first clue, for the clue
                     //TreasureHunterClue clue = m_DataTreasure.GetClueByID("Clue0");
-                    //m_TreasureUI.MessageUI.SetMessage(clue.Clue, 0.08f, 2.5f);
+                    //m_TreasureUI.MessageUI.SetMessage(, 0.08f, 2.5f);
 
                     // Subscribe to the markers
                    /* for (int i = 0; i < m_ListMarkers.Count; i++)
