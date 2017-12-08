@@ -1,29 +1,10 @@
 ﻿using LitJson;
 using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 
 namespace TreasureHunt
 {
-    [System.Serializable]
-    public class IndexFile
-    {
-        public string FileName;
-        public string URL;
-    }
-
-    [System.Serializable]
-    public class FileData
-    {
-        public List<IndexFile> Data;
-        public FileData()
-        {
-            Data = new List<IndexFile>();
-        }
-    }
-
-
     [System.Serializable]
     public class TreasureData
     {
@@ -95,12 +76,8 @@ namespace TreasureHunt
         private TreasureData m_IntroData;
         [SerializeField]
         private TreasureData m_CluesData;
-
-
-        [SerializeField]
-        private string m_FileDataUrl = "http://beatrizcv.com/Data/FileData.json";
-        [SerializeField]
-        private FileData m_FileData;
+       
+       
 
         void Start()
         {
@@ -110,142 +87,44 @@ namespace TreasureHunt
             m_NumberCluesFound = 1;
 
 
-            StartCoroutine(RequestFiles());
+            StartCoroutine(Init());
             // Set Intro
-            DoIntro();
+            //DoIntro();
         }
 
-        private IEnumerator RequestFiles()
+
+        private IEnumerator Init()
         {
 
-            // Request File data
-            m_FileData = new FileData();
+            yield return Utility.FileRequestManager.Instance.RequestFiles();
 
-            WWW wwwFile = new WWW(m_FileDataUrl);
-            yield return wwwFile;
-            string jsonData = wwwFile.text;
-            if (!string.IsNullOrEmpty(jsonData))
+            // Map JSON Data
+            for (int i=0; i< Utility.FileRequestManager.Instance.FileData.Data.Count; i++)
             {
-                if (!string.IsNullOrEmpty(jsonData))
+                string data = Utility.FileRequestManager.Instance.FileData.Data[i].Data;
+                m_TreasureUI.DebugTxt.text += "Data: " + data;
+
+                if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Intro")
                 {
-                    m_FileData = JsonMapper.ToObject<FileData>(jsonData);
+                    m_IntroData = JsonMapper.ToObject<TreasureData>(data);
+                }
+                else if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Clues")
+                {
+                    m_CluesData = JsonMapper.ToObject<TreasureData>(data);
                 }
             }
 
-            yield return new WaitForEndOfFrame();
-            for (int i=0; i<m_FileData.Data.Count; i++)
-            {
-                m_TreasureUI.DebugTxt.text += "Retrieving file: " + m_FileData.Data[i].FileName;
-
-                if (string.IsNullOrEmpty(m_FileData.Data[i].URL))
-                {
-                    continue;
-                }
-                WWW www = new WWW(m_FileData.Data[i].URL);
-
-                float progress = 0.0f;
-                string progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
-                while (!www.isDone)
-                {
-                    progress = www.progress * 100.0f;
-                    progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
-                    m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + www.bytesDownloaded;
 
 
-                    yield return null;
-                }
-
-                progress = www.progress * 100.0f;
-                progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
-                m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + www.bytesDownloaded;
-
-
-                jsonData = www.text;
-                if (!string.IsNullOrEmpty(www.text))
-                {
-                    if (!string.IsNullOrEmpty(www.text))
-                    {
-                        m_TreasureUI.DebugTxt.text += "Data: " + www.text;
-                        if (m_FileData.Data[i].FileName == "Intro")
-                        {
-                            m_IntroData = JsonMapper.ToObject<TreasureData>(www.text);
-                        }else if (m_FileData.Data[i].FileName == "Clues")
-                        {
-                            m_CluesData = JsonMapper.ToObject<TreasureData>(www.text);
-                        }
-
-                    }
-                }
-            }
-            yield return new WaitForEndOfFrame();
-
-
-
-
-            /*Debug.Log("[AppController.RetrieveInfo] Start to retrieve info...");
-
-            m_TreasureUI.DebugTxt.text = "Retrieve Intro from: " + m_IntroUrl;
-
-            m_IntroData = new TreasureData();
-            m_CluesData = new TreasureData();           
-
-            // Retrieve clues
-            WWW wwwIntro = new WWW(m_IntroUrl);
-
-            float progress = wwwIntro.progress * 100.0f;
-            string progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
-
-            m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + wwwIntro.bytesDownloaded;
-
-            while (!wwwIntro.isDone)
-            {
-                progress = wwwIntro.progress * 100.0f;
-                progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
-                m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + wwwIntro.bytesDownloaded;
-
-                yield return null;
-            }
-
-            progress = wwwIntro.progress * 100.0f;
-            progressText = "DOWNLOAD PROGRESS: " + progress.ToString() + "%";
-            m_TreasureUI.DebugTxt1.text = progressText + "    - Bytes Downloaded: " + wwwIntro.bytesDownloaded;
-
-            yield return wwwIntro;
-
-            Debug.Log("[AppController.RetrieveInfo] End...");
-
-            m_TreasureUI.DebugTxt.text = "Data: " + wwwIntro.text;
-
-            string jsonCluesData = wwwIntro.text;
-            if (!string.IsNullOrEmpty(jsonCluesData))
-            {
-                Debug.Log("[AppController.RetrieveInfo] Info: " + jsonCluesData);
-
-                if (!string.IsNullOrEmpty(jsonCluesData))
-                {
-                    m_IntroData = JsonMapper.ToObject<TreasureData>(jsonCluesData);
-                }
-            }
+      
 
             yield return new WaitForEndOfFrame();
 
-            // Retrieve clues
-            WWW wwwClues = new WWW(m_UrlClues);
-            yield return wwwClues;           
+            m_TMessage = TYPEMESSAGE.INTRO;
+            m_TreasureUI.ActiveButton = false;
+            m_TreasureUI.MessageUI.SetMessage("");
+            m_TreasureUI.MessageUI.Hide();
 
-            Debug.Log("[AppController.RetrieveInfo] End...");
-           jsonCluesData = wwwClues.text;
-            if (!string.IsNullOrEmpty(jsonCluesData))
-            {
-                Debug.Log("[AppController.RetrieveInfo] Info: " + jsonCluesData);
-
-                if (!string.IsNullOrEmpty(jsonCluesData))
-                {
-                    m_CluesData = JsonMapper.ToObject<TreasureData>(jsonCluesData);
-                }
-            }
-
-            yield return new WaitForEndOfFrame();*/
         }
 
         void Update()
@@ -257,14 +136,14 @@ namespace TreasureHunt
         }
 
         #region Intro
-        private void DoIntro()
+        /*private void DoIntro()
         {
             m_TMessage = TYPEMESSAGE.INTRO;
             m_TreasureUI.ActiveButton = false;
             m_TreasureUI.MessageUI.SetMessage("");
             m_TreasureUI.MessageUI.Hide();
             StartCoroutine(RoutineIntro());
-        }
+        }*/
 
         private IEnumerator RoutineIntro()
         {
