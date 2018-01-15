@@ -6,12 +6,14 @@ namespace TreasureHunt
 {
     public class MessagesUI : MonoBehaviour
     {
-        public delegate void DelegateOnEndShowMessage();
-        public static event DelegateOnEndShowMessage OnEndShowMessage;
+        public delegate void MessagesAction();
+        public event MessagesAction OnMessageEnd;
         [SerializeField] private CanvasGroup            m_Panel;
         [SerializeField] private Text                   m_LblMessage;
         private int                                     m_indexLetter = 0;
         private string                                  m_MessageText = "";
+        [SerializeField]
+        private float m_SpeedBetweenLetters = 0.02f;
         
         public void Show(bool fade = false)
         {
@@ -35,21 +37,24 @@ namespace TreasureHunt
             }
         }
 
-        public void SetMessage(string text, float delayEachLetters = 0.08f, float endPause = 1.0f)
+        public void SetMessage(string text, float endPause = 0.1f)
         {
-            if (delayEachLetters > 0.0f)
+            m_LblMessage.text = "";
+            m_MessageText = text;
+
+            //StopAllCoroutines();
+            if (m_SpeedBetweenLetters > 0.0f)
             {
-                m_LblMessage.text = "";
-                m_MessageText = text;
-                m_indexLetter = 0;
-                StartCoroutine(UpdateMessage(delayEachLetters, endPause));
-            }else
+                StartCoroutine(RoutineMessage(endPause));
+            }
+            else
             {
                 m_LblMessage.text = text;
             }
+            
         }
 
-        private IEnumerator UpdateMessage(float delay, float endPause)
+        private IEnumerator RoutineMessage(float endPause)
         {
             do
             {
@@ -57,19 +62,22 @@ namespace TreasureHunt
                 {
                     m_LblMessage.text += m_MessageText[m_indexLetter];
                 }
-                yield return new WaitForSeconds(delay);
+
+                yield return new WaitForSeconds(m_SpeedBetweenLetters);
 
                 if ((m_indexLetter + 1) <= m_MessageText.Length)
                 {
                     m_indexLetter++;
                 }
 
-            } while (m_indexLetter < m_MessageText.Length);
+            }
+
+            while (m_indexLetter < m_MessageText.Length);
             // Pause
             yield return new WaitForSeconds(endPause);
-            if (OnEndShowMessage != null)
+            if (OnMessageEnd != null)
             {
-                OnEndShowMessage();
+                OnMessageEnd();
             }
         }
     }

@@ -98,7 +98,7 @@ namespace Utility
                         }
 
                         // Request
-                        Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Requesting: " + (i + 1) + "/" + m_FileData.Data.Count + " : " + m_FileData.Data[i].FileName + "</color>");
+                        Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Requesting: " + (i + 1) + "/" + m_FileData.Data.Count + " : URL: " + m_FileData.Data[i].URL + " Filename: " + m_FileData.Data[i].FileName + "</color>");
                         WWW www = new WWW(m_FileData.Data[i].URL);
                         while (!www.isDone)
                         {
@@ -111,6 +111,8 @@ namespace Utility
                         m_ProgressText = m_PercentProgress.ToString() + " % ";
 
                         m_FileData.Data[i].Data = www.text;
+
+                        Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Got: "+ www.text + "</color>");
                     }
                 }
             }else

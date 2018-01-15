@@ -8,11 +8,15 @@ namespace TreasureHunt
     [System.Serializable]
     public class TreasureData
     {
-        public List<string> Data;
+        public List<string> Intro;
+        public List<string> Clues;
+        public List<string> EndOfGame;
 
         public TreasureData()
         {
-            Data = new List<string>();
+            Intro = new List<string>();
+            Clues = new List<string>();
+            EndOfGame = new List<string>();
         }
     }
     
@@ -39,19 +43,22 @@ namespace TreasureHunt
         }
         #endregion Instance
 
-        public enum EMarkerType { NONE =-1, MARKER1 = 0, MARKER2, MARKER3, MARKER4, MARKER5, MARKER6, MARKER7, MARKER8, MARKER9, MARKER10 };
+        //public enum EMarkerType { NONE =-1, MARKER1 = 0, MARKER2, MARKER3, MARKER4, MARKER5, MARKER6, MARKER7, MARKER8, MARKER9, MARKER10 };
 
-        [SerializeField] private TreasureControlUI m_TreasureUI;
+        private enum ESTATE { NONE, INTRO, GAME, END };
+        private ESTATE m_State = ESTATE.NONE;
+
+        [SerializeField] private TreasureControlUI m_UI;
         //[SerializeField] private List<TreasureHunterTrackableEvent> m_ListMarkers;
 
-        [Header("Egg prefabs")]
+       // [Header("Egg prefabs")]
         [SerializeField] private List<GameObject> m_ListEggPrefabs;
         private GameObject m_CurrentEgg;
 
-        private TreasureData m_TreasureData;
+        private TreasureData m_Data;
+        private int m_MessageID;
 
-        private enum TYPEMESSAGE { NONE, INTRO, END };
-        private TYPEMESSAGE m_TMessage;
+       private int m_NumberCluesFound;
 
         /*private string[] m_IntroMessage = new string[7]
             {
@@ -64,27 +71,27 @@ namespace TreasureHunt
             "Ah! I almost forgot.... here is the first clue: \n (Tap to continue)"
             };*/
 
-        private string[] m_EndHuntMessage = new string[2]
+        /*private string[] m_EndHuntMessage = new string[2]
            {
             "Will I see you again? Come back and play again!! \n (Tap to continue)",
             "Enjoy your prize."
-           };
-        private int m_IndexMessage;
-        private int m_NumberCluesFound;
+           };*/
+        
+        
 
-        [SerializeField]
+        /*[SerializeField]
         private TreasureData m_IntroData;
         [SerializeField]
-        private TreasureData m_CluesData;
+        private TreasureData m_CluesData;*/
        
        
 
         void Start()
         {
             // Create data
-            m_TMessage = TYPEMESSAGE.NONE;
+            m_State = ESTATE.NONE;
             //m_CluesData = new TreasureData();
-            m_NumberCluesFound = 1;
+            m_NumberCluesFound = 0;
 
 
             StartCoroutine(Init());
@@ -95,37 +102,54 @@ namespace TreasureHunt
 
         private IEnumerator Init()
         {
+            m_Data = new TreasureData();
 
+            // Retrieve information from server
             yield return Utility.FileRequestManager.Instance.RequestFiles();
 
             // Map JSON Data
             for (int i=0; i< Utility.FileRequestManager.Instance.FileData.Data.Count; i++)
             {
                 string data = Utility.FileRequestManager.Instance.FileData.Data[i].Data;
-                m_TreasureUI.DebugTxt.text += "Data: " + data;
+                m_UI.DebugTxt.text += "Data: " + data;
 
-                if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Intro")
+                Debug.Log("DATA " + data);
+                m_Data = JsonMapper.ToObject<TreasureData>(data);
+                /*if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Intro")
                 {
                     m_IntroData = JsonMapper.ToObject<TreasureData>(data);
                 }
                 else if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Clues")
                 {
                     m_CluesData = JsonMapper.ToObject<TreasureData>(data);
-                }
+                }*/
             }
-
-
-
-      
 
             yield return new WaitForEndOfFrame();
 
-            m_TMessage = TYPEMESSAGE.INTRO;
-            m_TreasureUI.ActiveButton = false;
-            m_TreasureUI.MessageUI.SetMessage("");
-            m_TreasureUI.MessageUI.Hide();
+            m_State = ESTATE.INTRO;
+            m_UI.ActiveButton = false;
+            m_UI.MessageUI.SetMessage("");
+            m_UI.MessageUI.Hide();
+
+            m_MessageID = -1;
+            m_UI.MessageUI.Show(true);
+            m_UI.MessageUI.OnMessageEnd += OnEndOfMessage;
+
+            OnAdvanceStep();
+
+
+            yield return new WaitForSeconds(2.0f);
 
         }
+
+        private void OnEndOfMessage()
+        {
+            m_UI.ActiveButton = true;
+        }
+
+
+
 
         void Update()
         {
@@ -133,6 +157,66 @@ namespace TreasureHunt
             {
                 Application.Quit();
             }
+        }
+
+
+        public void OnAdvanceStep()
+        {
+            if (m_State == ESTATE.INTRO)
+            {
+                m_MessageID++;
+                m_UI.ActiveButton = false;
+                if (m_MessageID < m_Data.Intro.Count)
+                {
+                    m_UI.MessageUI.SetMessage(m_Data.Intro[m_MessageID]);
+                }else
+                {
+                    Debug.Log(" END OF INTRO: ");
+                }
+            }
+
+
+
+            /*if (m_TMessage == TYPEMESSAGE.INTRO)
+            {*/
+                
+                
+                /*if (m_IndexMessage < 0)
+                {
+
+                    m_TreasureUI.MessageUI.SetMessage(m_IntroData.Intro[m_IndexMessage]);
+                }
+                else
+                {*/
+                    //MessagesUI.OnEndShowMessage -= OnEndMessageLine;
+                    // Get the first clue, for the clue
+                    //TreasureHunterClue clue = m_DataTreasure.GetClueByID("Clue0");
+                    //m_TreasureUI.MessageUI.SetMessage(, 0.08f, 2.5f);
+
+                    // Subscribe to the markers
+                    /* for (int i = 0; i < m_ListMarkers.Count; i++)
+                     {
+                         if (m_ListMarkers[i] != null)
+                         {
+                             m_ListMarkers[i].OnClueFound += OnClueFound;
+                             m_ListMarkers[i].OnClueLost += OnClueLost;
+                         }
+                     }*/
+
+              //  }
+           // }
+            /*else if (m_TMessage == TYPEMESSAGE.END)
+            {
+                m_IndexMessage++;
+                if (m_IndexMessage < m_EndHuntMessage.Length)
+                {
+                    m_TreasureUI.MessageUI.SetMessage(m_EndHuntMessage[m_IndexMessage]);
+                }
+                else
+                {
+                    MessagesUI.OnEndShowMessage -= OnEndMessageLine;
+                }
+            }*/
         }
 
         #region Intro
@@ -145,67 +229,22 @@ namespace TreasureHunt
             StartCoroutine(RoutineIntro());
         }*/
 
-        private IEnumerator RoutineIntro()
+        /*private IEnumerator RoutineIntro()
         {
             m_TreasureUI.MessageUI.Show(true);
             yield return new WaitForSeconds(2.0f);
             m_IndexMessage = 0;
-            m_TreasureUI.MessageUI.SetMessage(m_IntroData.Data[m_IndexMessage], 0.08f, 0.0f);
+            m_TreasureUI.MessageUI.SetMessage(m_IntroData.Intro[m_IndexMessage], 0.08f, 0.0f);
             MessagesUI.OnEndShowMessage += OnEndMessageLine;
-        }
+        }*/
 
-        public void OnEndMessageLine()
-        {
-            m_TreasureUI.ActiveButton = true;
-        }
+        
 
         #endregion Intro
 
-        public void OnTapButton()
-        {
-            if (m_TMessage == TYPEMESSAGE.INTRO)
-            {
-                m_TreasureUI.ActiveButton = false;
-                m_IndexMessage++;
-                if (m_IndexMessage <0)
-                {
+        
 
-                    m_TreasureUI.MessageUI.SetMessage(m_IntroData.Data[m_IndexMessage]);
-                }
-                else
-                {
-                    MessagesUI.OnEndShowMessage -= OnEndMessageLine;
-                    // Get the first clue, for the clue
-                    //TreasureHunterClue clue = m_DataTreasure.GetClueByID("Clue0");
-                    //m_TreasureUI.MessageUI.SetMessage(, 0.08f, 2.5f);
-
-                    // Subscribe to the markers
-                   /* for (int i = 0; i < m_ListMarkers.Count; i++)
-                    {
-                        if (m_ListMarkers[i] != null)
-                        {
-                            m_ListMarkers[i].OnClueFound += OnClueFound;
-                            m_ListMarkers[i].OnClueLost += OnClueLost;
-                        }
-                    }*/
-
-                }
-            }
-            else if (m_TMessage == TYPEMESSAGE.END)
-            {
-                m_IndexMessage++;
-                if (m_IndexMessage < m_EndHuntMessage.Length)
-                {
-                    m_TreasureUI.MessageUI.SetMessage(m_EndHuntMessage[m_IndexMessage]);
-                }
-                else
-                {
-                    MessagesUI.OnEndShowMessage -= OnEndMessageLine;
-                }
-            }
-        }
-
-        public void OnMarkerFound(string id, EMarkerType marker)
+        public void OnMarkerFound(string id, int markerID)
         {
             // Find clue
             /*TreasureHunterClue clue = m_DataTreasure.GetClueByID(id);
@@ -243,11 +282,11 @@ namespace TreasureHunt
             }*/
         }
 
-        public void OnMarkerLost(string id, EMarkerType marker)
+        public void OnMarkerLost(string id, int markerID)
         {
-            DestroyCurrentEgg();
+            //DestroyCurrentEgg();
         }
-        private void DestroyCurrentEgg()
+        /*private void DestroyCurrentEgg()
         {
             if (m_CurrentEgg != null)
             {
@@ -260,6 +299,6 @@ namespace TreasureHunt
             DestroyCurrentEgg();
             int idEgg = Random.Range(0, m_ListEggPrefabs.Count);
             m_CurrentEgg = Instantiate(m_ListEggPrefabs[idEgg]);
-        }
+        }*/
     }
 }
