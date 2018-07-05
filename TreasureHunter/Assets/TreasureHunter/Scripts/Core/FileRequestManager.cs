@@ -89,6 +89,8 @@ namespace Utility
         {
             m_Data = new TreasureData();
 
+            
+
             m_PercentProgress = 0.0f;
             m_ProgressText = m_PercentProgress.ToString() + " % ";
 
@@ -99,7 +101,18 @@ namespace Utility
             }
 
             WWW wwwFile = new WWW(m_FileDataUrl);
+
+           
+
+            while (!wwwFile.isDone)
+            {
+                int progress = (int)(wwwFile.progress * 100);
+                TreasureHunt.AppController.Instance.UI.Progress.SetProgress(progress);
+            }
+
             yield return wwwFile;
+
+            TreasureHunt.AppController.Instance.UI.Progress.SetProgress(100);
 
             if (!string.IsNullOrEmpty(wwwFile.text))
             {

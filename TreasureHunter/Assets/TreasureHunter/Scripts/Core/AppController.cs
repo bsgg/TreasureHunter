@@ -34,9 +34,13 @@ namespace TreasureHunt
         private ESTATE m_State = ESTATE.NONE;
 
         [SerializeField] private UIController m_UI;
+        public UIController UI
+        {
+            get { return m_UI; }
+        }
         //[SerializeField] private List<TreasureHunterTrackableEvent> m_ListMarkers;
 
-       // [Header("Egg prefabs")]
+        // [Header("Egg prefabs")]
         [SerializeField] private List<GameObject> m_ListEggPrefabs;
         private GameObject m_CurrentEgg;
 
@@ -78,7 +82,6 @@ namespace TreasureHunt
             //m_CluesData = new TreasureData();
             m_NumberCluesFound = 0;
 
-
             m_UI.HideAll();  
             // Check internet
             if (Application.internetReachability == NetworkReachability.NotReachable) 
@@ -91,10 +94,10 @@ namespace TreasureHunt
 
             }else
             {
-                m_UI.PopupButtons.ShowPopup("", "Initializing Treasur Hunt....",
-                    string.Empty, null,
-                    string.Empty, null,
-                    string.Empty, null);
+                m_UI.Progress.Title = "Wait Downloading data...";
+                m_UI.Progress.SetProgress(0);
+
+                m_UI.Progress.Show();
 
                 StartCoroutine(Init());
             }
@@ -113,19 +116,22 @@ namespace TreasureHunt
 
         private IEnumerator Init()
         {
-           // m_Data = new TreasureData();
+            // m_Data = new TreasureData();
 
             // Check internet connection
 
             // Retrieve information from server
+
             yield return Utility.FileRequestManager.Instance.RequestFiles();
 
-            m_UI.PopupButtons.MessageText = "Ready to play!";
-
+            m_UI.Progress.SetProgress(100);
 
             yield return new WaitForSeconds(1.0f);
 
-            m_UI.PopupButtons.Hide();
+            m_UI.Progress.Title = "Completed! Ready to play =)";
+            yield return new WaitForSeconds(1.0f);
+
+            m_UI.Progress.Hide();
 
             // Map JSON Data
             /*for (int i=0; i< Utility.FileRequestManager.Instance.FileData.Data.Count; i++)
