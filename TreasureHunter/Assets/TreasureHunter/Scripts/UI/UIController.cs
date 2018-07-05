@@ -2,12 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using Utility;
+using Utility.UI;
 
 namespace TreasureHunt
 {
-    public class TreasureControlUI : MonoBehaviour
+    public class UIController : MonoBehaviour
     {
-        [SerializeField]
+
+        [SerializeField] private PopupWithButtons m_PopupButtons;
+        public PopupWithButtons PopupButtons
+        {
+            get { return m_PopupButtons; }
+        }
+
+        public void HideAll()
+        {
+            m_PopupButtons.Hide();
+        }
+
+        
+
+       /* [SerializeField]
         private MessagesUI m_MessageUI;
         public MessagesUI MessageUI
         {
@@ -40,7 +56,7 @@ namespace TreasureHunt
         public Text DebugTxt1
         {
             get { return m_DebugTxt1; }
-        }
+        }*/
 
 
     }

@@ -1,4 +1,4 @@
-﻿using LitJson;
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +21,23 @@ namespace Utility
         public FileData()
         {
             Data = new List<IndexFile>();
+        }
+    }
+
+
+
+    [System.Serializable]
+    public class TreasureData
+    {
+        public List<string> Intro;
+        public List<string> Clues;
+        public List<string> EndOfGame;
+
+        public TreasureData()
+        {
+            Intro = new List<string>();
+            Clues = new List<string>();
+            EndOfGame = new List<string>();
         }
     }
 
@@ -50,12 +67,12 @@ namespace Utility
         private string m_FileDataUrl = "http://beatrizcv.com/Data/FileData.json";
 
         [SerializeField]
-        private FileData m_FileData;
-        public FileData FileData
+        private TreasureData m_Data;
+        public TreasureData Data
         {
             get
             {
-                return m_FileData;
+                return m_Data;
             }
         }
 
@@ -70,7 +87,8 @@ namespace Utility
 
         public IEnumerator RequestFiles()
         {
-            m_FileData = new FileData();
+            m_Data = new TreasureData();
+
             m_PercentProgress = 0.0f;
             m_ProgressText = m_PercentProgress.ToString() + " % ";
 
@@ -82,14 +100,19 @@ namespace Utility
 
             WWW wwwFile = new WWW(m_FileDataUrl);
             yield return wwwFile;
-            string jsonData = wwwFile.text;
-            if (!string.IsNullOrEmpty(jsonData))
-            {
-                if (!string.IsNullOrEmpty(jsonData))
-                {
-                    m_FileData = JsonMapper.ToObject<FileData>(jsonData);
 
-                    Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Requesting... " + m_FileData.Data.Count + " Files " + "</color>");
+            if (!string.IsNullOrEmpty(wwwFile.text))
+            {
+                m_Data = JsonUtility.FromJson<TreasureData>(wwwFile.text);
+            }else
+            {
+                Debug.LogWarning("<color=yellow>" + "[FileRequestManager] File Data Json is null or empty" + "</color>");
+            }
+
+                
+                    
+
+                    /*Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Requesting... " + m_FileData.Data.Count + " Files " + "</color>");
                     for (int i = 0; i < m_FileData.Data.Count; i++)
                     {
                         if (string.IsNullOrEmpty(m_FileData.Data[i].URL))
@@ -113,12 +136,8 @@ namespace Utility
                         m_FileData.Data[i].Data = www.text;
 
                         Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Got: "+ www.text + "</color>");
-                    }
-                }
-            }else
-            {
-                Debug.LogWarning("<color=yellow>" + "[FileRequestManager] File Data Json is null or empty" + "</color>");
-            }            
+                    }*/
+                       
         }
 
     }

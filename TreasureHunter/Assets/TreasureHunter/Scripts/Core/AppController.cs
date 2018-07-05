@@ -1,26 +1,11 @@
-﻿using LitJson;
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace TreasureHunt
 {
-    [System.Serializable]
-    public class TreasureData
-    {
-        public List<string> Intro;
-        public List<string> Clues;
-        public List<string> EndOfGame;
-
-        public TreasureData()
-        {
-            Intro = new List<string>();
-            Clues = new List<string>();
-            EndOfGame = new List<string>();
-        }
-    }
-    
-
     public class AppController : MonoBehaviour
     {
         #region Instance
@@ -48,14 +33,14 @@ namespace TreasureHunt
         private enum ESTATE { NONE, INTRO, GAME, END };
         private ESTATE m_State = ESTATE.NONE;
 
-        [SerializeField] private TreasureControlUI m_UI;
+        [SerializeField] private UIController m_UI;
         //[SerializeField] private List<TreasureHunterTrackableEvent> m_ListMarkers;
 
        // [Header("Egg prefabs")]
         [SerializeField] private List<GameObject> m_ListEggPrefabs;
         private GameObject m_CurrentEgg;
 
-        private TreasureData m_Data;
+        //private TreasureData m_Data;
         private int m_MessageID;
 
        private int m_NumberCluesFound;
@@ -94,21 +79,56 @@ namespace TreasureHunt
             m_NumberCluesFound = 0;
 
 
-            StartCoroutine(Init());
+            m_UI.HideAll();  
+            // Check internet
+            if (Application.internetReachability == NetworkReachability.NotReachable) 
+            {
+                Debug.Log("No Internet");
+                m_UI.PopupButtons.ShowPopup("", "Please connect to internet and restart Treasur Hunt to download the data.",
+                    "Restart App", OkPopup,
+                    string.Empty, null,
+                    string.Empty, null);
+
+            }else
+            {
+                m_UI.PopupButtons.ShowPopup("", "Initializing Treasur Hunt....",
+                    string.Empty, null,
+                    string.Empty, null,
+                    string.Empty, null);
+
+                StartCoroutine(Init());
+            }
+
+                
             // Set Intro
             //DoIntro();
+        }
+
+        private void OkPopup(Utility.ButtonWithText Button)
+        {
+            Application.Quit();
+            //m_UI.PopupButtons.Hide();
         }
 
 
         private IEnumerator Init()
         {
-            m_Data = new TreasureData();
+           // m_Data = new TreasureData();
+
+            // Check internet connection
 
             // Retrieve information from server
             yield return Utility.FileRequestManager.Instance.RequestFiles();
 
+            m_UI.PopupButtons.MessageText = "Ready to play!";
+
+
+            yield return new WaitForSeconds(1.0f);
+
+            m_UI.PopupButtons.Hide();
+
             // Map JSON Data
-            for (int i=0; i< Utility.FileRequestManager.Instance.FileData.Data.Count; i++)
+            /*for (int i=0; i< Utility.FileRequestManager.Instance.FileData.Data.Count; i++)
             {
                 string data = Utility.FileRequestManager.Instance.FileData.Data[i].Data;
                 m_UI.DebugTxt.text += "Data: " + data;
@@ -123,11 +143,11 @@ namespace TreasureHunt
                 {
                     m_CluesData = JsonMapper.ToObject<TreasureData>(data);
                 }*/
-            }
+            // }
 
             yield return new WaitForEndOfFrame();
 
-            m_State = ESTATE.INTRO;
+           /* m_State = ESTATE.INTRO;
             m_UI.ActiveButton = false;
             m_UI.MessageUI.SetMessage("");
             m_UI.MessageUI.Hide();
@@ -135,17 +155,17 @@ namespace TreasureHunt
             m_MessageID = -1;
             m_UI.MessageUI.Show(true);
             m_UI.MessageUI.OnMessageEnd += OnEndOfMessage;
-
+            
             OnAdvanceStep();
 
 
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(2.0f);*/
 
         }
 
         private void OnEndOfMessage()
         {
-            m_UI.ActiveButton = true;
+            //m_UI.ActiveButton = true;
         }
 
 
@@ -165,14 +185,14 @@ namespace TreasureHunt
             if (m_State == ESTATE.INTRO)
             {
                 m_MessageID++;
-                m_UI.ActiveButton = false;
-                if (m_MessageID < m_Data.Intro.Count)
+               // m_UI.ActiveButton = false;
+                /*if (m_MessageID < m_Data.Intro.Count)
                 {
                     m_UI.MessageUI.SetMessage(m_Data.Intro[m_MessageID]);
                 }else
                 {
                     Debug.Log(" END OF INTRO: ");
-                }
+                }*/
             }
 
 
