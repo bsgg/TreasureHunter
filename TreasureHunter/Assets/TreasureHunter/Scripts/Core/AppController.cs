@@ -44,7 +44,7 @@ namespace TreasureHunt
 
         // [Header("Egg prefabs")]
         [SerializeField] private List<GameObject> m_ListEggPrefabs;
-        private GameObject m_CurrentEgg;
+        private GameObject m_CurrentInstance;
 
         //private TreasureData m_Data;
         private int m_MessageID;
@@ -146,15 +146,58 @@ namespace TreasureHunt
 
                 break;
 
+                case ESTATE.END:
 
+                break;
             }
-
-           
-            
-           
         }
 
+        public void OnMarkerFound(string id, int markerID)
+        {
+            // Avoid scan when no Game state
+            if (m_State != ESTATE.GAME) return;
+            // Find clue
+            if ((markerID >= 0) && (markerID < m_FileManager.Data.Clues.Count))
+            {
+                //m_FileManager.Data.Clues[markerID]
+                 m_NumberCluesFound++;
+                if (m_NumberCluesFound < m_FileManager.Data.Clues.Count)
+                {
+                    // Instance egg and set new message
+                    InstanceObject();
+                    m_UI.MessageUI.SetMessage("Clue " + id, m_FileManager.Data.Clues[markerID], 0.3f);
 
+                }else
+                {
+                    // End clues
+                    m_MessageID = 0;
+                    m_State = ESTATE.END;
+                    m_UI.MessageUI.SetMessage("Game over", m_FileManager.Data.EndOfGame[m_MessageID], 0.3f);
+                }
+            }
+            
+            
+        }
+
+        public void OnMarkerLost(string id, int markerID)
+        {
+            DestroyCurrentObject();
+        }
+
+       private void DestroyCurrentObject()
+       {
+           if (m_CurrentInstance != null)
+           {
+               Destroy(m_CurrentInstance);
+           }
+       }
+
+       private void InstanceObject()
+       {
+            DestroyCurrentObject();
+           int idObj = Random.Range(0, m_ListEggPrefabs.Count);
+            m_CurrentInstance = Instantiate(m_ListEggPrefabs[idObj]);
+       }
 
 
         void Update()
@@ -164,126 +207,8 @@ namespace TreasureHunt
                 Application.Quit();
             }
         }
-
-
-        public void OnAdvanceStep()
-        {
-            if (m_State == ESTATE.INTRO)
-            {
-                m_MessageID++;
-               // m_UI.ActiveButton = false;
-                /*if (m_MessageID < m_Data.Intro.Count)
-                {
-                    m_UI.MessageUI.SetMessage(m_Data.Intro[m_MessageID]);
-                }else
-                {
-                    Debug.Log(" END OF INTRO: ");
-                }*/
-            }
-
-
-
-            /*if (m_TMessage == TYPEMESSAGE.INTRO)
-            {*/
-                
-                
-                /*if (m_IndexMessage < 0)
-                {
-
-                    m_TreasureUI.MessageUI.SetMessage(m_IntroData.Intro[m_IndexMessage]);
-                }
-                else
-                {*/
-                    //MessagesUI.OnEndShowMessage -= OnEndMessageLine;
-                    // Get the first clue, for the clue
-                    //TreasureHunterClue clue = m_DataTreasure.GetClueByID("Clue0");
-                    //m_TreasureUI.MessageUI.SetMessage(, 0.08f, 2.5f);
-
-                    // Subscribe to the markers
-                    /* for (int i = 0; i < m_ListMarkers.Count; i++)
-                     {
-                         if (m_ListMarkers[i] != null)
-                         {
-                             m_ListMarkers[i].OnClueFound += OnClueFound;
-                             m_ListMarkers[i].OnClueLost += OnClueLost;
-                         }
-                     }*/
-
-              //  }
-           // }
-            /*else if (m_TMessage == TYPEMESSAGE.END)
-            {
-                m_IndexMessage++;
-                if (m_IndexMessage < m_EndHuntMessage.Length)
-                {
-                    m_TreasureUI.MessageUI.SetMessage(m_EndHuntMessage[m_IndexMessage]);
-                }
-                else
-                {
-                    MessagesUI.OnEndShowMessage -= OnEndMessageLine;
-                }
-            }*/
-        }
-
-       
-
         
-
-        public void OnMarkerFound(string id, int markerID)
-        {
-            // Find clue
-            /*TreasureHunterClue clue = m_DataTreasure.GetClueByID(id);
-            if ((!clue.Active) && (!string.IsNullOrEmpty(clue.ID)))
-            {
-                clue.Active = true;
-
-                m_NumberCluesFound++;
-
-                if (m_NumberCluesFound < m_DataTreasure.NumberClues)
-                {
-                    // Instance egg and set new message
-                    InstanceEgg();
-                    m_TreasureUI.MessageUI.SetMessage(clue.Clue, 0.08f, 0.0f);
-
-                }
-                else
-                {
-                    InstanceEgg();
-                    // Show last message
-                    m_TreasureUI.MessageUI.SetMessage(clue.Clue, 0.08f, 0.0f);
-                    MessagesUI.OnEndShowMessage += OnEndMessageLine;
-
-                    // Unsubscribe to the markers
-                   /* for (int i = 0; i < m_ListMarkers.Count; i++)
-                    {
-                        m_ListMarkers[i].OnClueFound -= OnClueFound;
-                        m_ListMarkers[i].OnClueLost -= OnClueLost;
-                    }*/
-
-                    // Show end message
-                   /* m_TMessage = TYPEMESSAGE.END;
-                    m_IndexMessage = 0;*/
-              /*  }
-            }*/
-        }
-
-        public void OnMarkerLost(string id, int markerID)
-        {
-            //DestroyCurrentEgg();
-        }
-        /*private void DestroyCurrentEgg()
-        {
-            if (m_CurrentEgg != null)
-            {
-                Destroy(m_CurrentEgg);
-            }
-        }
-
-        private void InstanceEgg()
-        {
-            DestroyCurrentEgg();
-            int idEgg = Random.Range(0, m_ListEggPrefabs.Count);
-            m_CurrentEgg = Instantiate(m_ListEggPrefabs[idEgg]);
-        }*/
+        
+       
     }
 }
