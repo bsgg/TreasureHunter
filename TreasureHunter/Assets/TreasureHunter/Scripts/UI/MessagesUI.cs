@@ -1,66 +1,78 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Utility;
+using Utility.UI;
+using UnityEngine.EventSystems;
 
 namespace TreasureHunt
 {
-    public class MessagesUI : MonoBehaviour
+    public class MessagesUI : UIBase
     {
         public delegate void MessagesAction();
         public event MessagesAction OnMessageEnd;
-        [SerializeField] private CanvasGroup            m_Panel;
-        [SerializeField] private Text                   m_LblMessage;
+
+        [SerializeField] private Text m_Title;
+        [SerializeField] private ScrollTextUI           m_ScrollMessages;
+
         private int                                     m_indexLetter = 0;
         private string                                  m_MessageText = "";
         [SerializeField]
         private float m_SpeedBetweenLetters = 0.02f;
-        
-        public void Show(bool fade = false)
-        {
-            if (fade)
-            {
-                StartCoroutine(Utility.UIAnimation.FadeCanvasGroup(m_Panel, 0.0f, 1.0f, 0.3f));
-            }else
-            {
-                m_Panel.alpha = 1.0f;
-            }
-        }        
 
-        public void Hide(bool fade = false)
+        [SerializeField] private EventTrigger m_EventTrigger;
+
+        public override void Show()
         {
-            if (fade)
-            {
-                StartCoroutine(Utility.UIAnimation.FadeCanvasGroup(m_Panel, 1.0f, 0.0f, 0.1f));
-            }else
-            {
-                m_Panel.alpha = 0.0f;
-            }
+            m_Title.text = "";
+
+            m_ScrollMessages.Description = "";
+
+            DisableButton();
+
+            base.Show();
         }
 
-        public void SetMessage(string text, float endPause = 0.1f)
+        public void DisableButton()
         {
-            m_LblMessage.text = "";
+            m_EventTrigger.enabled = false;
+        }
+
+        public void EnableButton()
+        {
+            m_EventTrigger.enabled = true;
+        }
+
+
+        public void SetMessage(string title, string text, float endPause = 0.1f)
+        {
+            m_Title.text = title;
+
+            m_ScrollMessages.Description = "";
+
             m_MessageText = text;
 
-            //StopAllCoroutines();
+            m_indexLetter = 0;
+
             if (m_SpeedBetweenLetters > 0.0f)
             {
-                StartCoroutine(RoutineMessage(endPause));
+                StopAllCoroutines();
+                StartCoroutine(UpdateMessage(endPause));
             }
             else
             {
-                m_LblMessage.text = text;
+                m_ScrollMessages.Description = text;
             }
             
         }
 
-        private IEnumerator RoutineMessage(float endPause)
+        private IEnumerator UpdateMessage(float endPause)
         {
             do
             {
                 if (m_indexLetter < m_MessageText.Length)
                 {
-                    m_LblMessage.text += m_MessageText[m_indexLetter];
+                    m_ScrollMessages.Description += m_MessageText[m_indexLetter];
                 }
 
                 yield return new WaitForSeconds(m_SpeedBetweenLetters);

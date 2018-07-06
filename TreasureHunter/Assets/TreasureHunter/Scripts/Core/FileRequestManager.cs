@@ -43,26 +43,6 @@ namespace Utility
 
     public class FileRequestManager : MonoBehaviour
     {
-        #region Instance
-        private static FileRequestManager m_Instance;
-        public static FileRequestManager Instance
-        {
-            get
-            {
-                if (m_Instance == null)
-                {
-                    m_Instance = (FileRequestManager)FindObjectOfType(typeof(FileRequestManager));
-
-                    if (m_Instance == null)
-                    {
-                        Debug.LogError("An instance of " + typeof(FileRequestManager) + " is needed in the scene, but there is none.");
-                    }
-                }
-                return m_Instance;
-            }
-        }
-        #endregion Instance
-
         [SerializeField]
         private string m_FileDataUrl = "http://beatrizcv.com/Data/FileData.json";
 

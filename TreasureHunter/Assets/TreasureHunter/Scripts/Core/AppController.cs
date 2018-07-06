@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utility;
 using UnityEngine.SceneManagement;
 
 namespace TreasureHunt
@@ -28,10 +29,11 @@ namespace TreasureHunt
         }
         #endregion Instance
 
-        //public enum EMarkerType { NONE =-1, MARKER1 = 0, MARKER2, MARKER3, MARKER4, MARKER5, MARKER6, MARKER7, MARKER8, MARKER9, MARKER10 };
-
         private enum ESTATE { NONE, INTRO, GAME, END };
         private ESTATE m_State = ESTATE.NONE;
+
+
+        [SerializeField] private FileRequestManager m_FileManager;
 
         [SerializeField] private UIController m_UI;
         public UIController UI
@@ -46,43 +48,25 @@ namespace TreasureHunt
 
         //private TreasureData m_Data;
         private int m_MessageID;
+        private int m_NumberCluesFound;        
 
-       private int m_NumberCluesFound;
-
-        /*private string[] m_IntroMessage = new string[7]
+        private void Awake()
+        {
+            if (m_FileManager == null)
             {
-            "Hey! Welcome to this little game specially prepared for you =) \n (Tap to continue)",
-            "First, allow me to explain how to play. \n (Tap to continue)",
-            "You'll find little pictures hiding all over the place. \n (Tap to continue)",
-            "Use your camera to scan them and you'll be able to get a ... clue! \n (Tap to continue)",
-            "Think hard to find out the next location.... A surprise is waiting for you! \n (Tap to continue)",
-            "Without any delay... Let's begin the game... \n (Tap to continue)",
-            "Ah! I almost forgot.... here is the first clue: \n (Tap to continue)"
-            };*/
-
-        /*private string[] m_EndHuntMessage = new string[2]
-           {
-            "Will I see you again? Come back and play again!! \n (Tap to continue)",
-            "Enjoy your prize."
-           };*/
-        
-        
-
-        /*[SerializeField]
-        private TreasureData m_IntroData;
-        [SerializeField]
-        private TreasureData m_CluesData;*/
-       
-       
+                m_FileManager = GetComponent<FileRequestManager>();
+            }
+        }
 
         void Start()
         {
             // Create data
             m_State = ESTATE.NONE;
-            //m_CluesData = new TreasureData();
+
             m_NumberCluesFound = 0;
 
             m_UI.HideAll();  
+
             // Check internet
             if (Application.internetReachability == NetworkReachability.NotReachable) 
             {
@@ -96,33 +80,21 @@ namespace TreasureHunt
             {
                 m_UI.Progress.Title = "Wait Downloading data...";
                 m_UI.Progress.SetProgress(0);
-
                 m_UI.Progress.Show();
-
                 StartCoroutine(Init());
             }
-
-                
-            // Set Intro
-            //DoIntro();
         }
 
         private void OkPopup(Utility.ButtonWithText Button)
         {
             Application.Quit();
-            //m_UI.PopupButtons.Hide();
         }
 
 
         private IEnumerator Init()
         {
-            // m_Data = new TreasureData();
-
-            // Check internet connection
-
-            // Retrieve information from server
-
-            yield return Utility.FileRequestManager.Instance.RequestFiles();
+            // Request files
+            yield return m_FileManager.RequestFiles();
 
             m_UI.Progress.SetProgress(100);
 
@@ -133,45 +105,53 @@ namespace TreasureHunt
 
             m_UI.Progress.Hide();
 
-            // Map JSON Data
-            /*for (int i=0; i< Utility.FileRequestManager.Instance.FileData.Data.Count; i++)
-            {
-                string data = Utility.FileRequestManager.Instance.FileData.Data[i].Data;
-                m_UI.DebugTxt.text += "Data: " + data;
 
-                Debug.Log("DATA " + data);
-                m_Data = JsonMapper.ToObject<TreasureData>(data);
-                /*if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Intro")
-                {
-                    m_IntroData = JsonMapper.ToObject<TreasureData>(data);
-                }
-                else if (Utility.FileRequestManager.Instance.FileData.Data[i].FileName == "Clues")
-                {
-                    m_CluesData = JsonMapper.ToObject<TreasureData>(data);
-                }*/
-            // }
+            // Intro 
+            m_MessageID = 0;
+            m_State = ESTATE.INTRO;
 
-            yield return new WaitForEndOfFrame();
-
-           /* m_State = ESTATE.INTRO;
-            m_UI.ActiveButton = false;
-            m_UI.MessageUI.SetMessage("");
-            m_UI.MessageUI.Hide();
-
-            m_MessageID = -1;
-            m_UI.MessageUI.Show(true);
+            m_UI.MessageUI.Show();
+            m_UI.MessageUI.DisableButton();
+            m_UI.MessageUI.SetMessage("Instructions", m_FileManager.Data.Intro[m_MessageID], 0.3f);
             m_UI.MessageUI.OnMessageEnd += OnEndOfMessage;
-            
-            OnAdvanceStep();
-
-
-            yield return new WaitForSeconds(2.0f);*/
-
         }
 
         private void OnEndOfMessage()
         {
-            //m_UI.ActiveButton = true;
+            m_UI.MessageUI.EnableButton();
+        }
+
+        public void OnMessageTap()
+        {
+            m_UI.MessageUI.DisableButton();
+            switch (m_State)
+            {
+                case ESTATE.INTRO:
+
+                    m_MessageID++;
+
+                    if (m_MessageID < m_FileManager.Data.Intro.Count)
+                    {
+                        m_UI.MessageUI.SetMessage("Instructions", m_FileManager.Data.Intro[m_MessageID], 0.3f);
+                    }else
+                    {
+                        // Show first clue
+                        m_MessageID = 0;
+                        m_State = ESTATE.GAME;
+                        m_UI.MessageUI.SetMessage("Look for all the clues!", m_FileManager.Data.Clues[m_MessageID], 0.3f);
+                    }
+                break;
+
+                case ESTATE.GAME:
+
+                break;
+
+
+            }
+
+           
+            
+           
         }
 
 
@@ -245,28 +225,7 @@ namespace TreasureHunt
             }*/
         }
 
-        #region Intro
-        /*private void DoIntro()
-        {
-            m_TMessage = TYPEMESSAGE.INTRO;
-            m_TreasureUI.ActiveButton = false;
-            m_TreasureUI.MessageUI.SetMessage("");
-            m_TreasureUI.MessageUI.Hide();
-            StartCoroutine(RoutineIntro());
-        }*/
-
-        /*private IEnumerator RoutineIntro()
-        {
-            m_TreasureUI.MessageUI.Show(true);
-            yield return new WaitForSeconds(2.0f);
-            m_IndexMessage = 0;
-            m_TreasureUI.MessageUI.SetMessage(m_IntroData.Intro[m_IndexMessage], 0.08f, 0.0f);
-            MessagesUI.OnEndShowMessage += OnEndMessageLine;
-        }*/
-
-        
-
-        #endregion Intro
+       
 
         
 

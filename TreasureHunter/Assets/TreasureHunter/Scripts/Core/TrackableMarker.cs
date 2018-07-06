@@ -10,8 +10,6 @@ namespace TreasureHunt
         private TrackableBehaviour m_TrackableBehaviour;
 
         [SerializeField] private int m_ID = -1;
-        /*[SerializeField]
-        private AppController.EMarkerType m_MarkerType;*/
 
         void Start()
         {
@@ -33,6 +31,11 @@ namespace TreasureHunt
             {
 
                 AppController.Instance.OnMarkerFound(m_TrackableBehaviour.TrackableName, m_ID);
+            }
+            else if (previousStatus == TrackableBehaviour.Status.TRACKED &&
+                      newStatus == TrackableBehaviour.Status.NO_POSE)
+            {
+                AppController.Instance.OnMarkerLost(m_TrackableBehaviour.TrackableName, m_ID);
             }
             else
             {

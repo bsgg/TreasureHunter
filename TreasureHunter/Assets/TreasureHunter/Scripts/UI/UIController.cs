@@ -14,7 +14,7 @@ namespace TreasureHunt
         public PopupWithButtons PopupButtons
         {
             get { return m_PopupButtons; }
-        }
+        } 
 
         [SerializeField] private ProgressUI m_Progress;
         public ProgressUI Progress
@@ -22,9 +22,17 @@ namespace TreasureHunt
             get { return m_Progress; }
         }
 
+        [SerializeField] private MessagesUI m_MessageUI;
+        public MessagesUI MessageUI
+        {
+            get { return m_MessageUI; }
+        }
+
+
 
         public void HideAll()
         {
+            m_MessageUI.Hide();
             m_PopupButtons.Hide();
             Progress.Hide();
         }

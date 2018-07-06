@@ -17,7 +17,7 @@ namespace TreasureHunt
 
         private void DoIntro()
         {
-            m_MessageUI.SetMessage(m_CardMessage);
+            //m_MessageUI.SetMessage(m_CardMessage);
         }
 
         void Update()
