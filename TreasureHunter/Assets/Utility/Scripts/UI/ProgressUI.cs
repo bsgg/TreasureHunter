@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Utility.UI;
 
-namespace TreasureHunt
+
+namespace Utility.UI
 {
-    public class ProgressUI : Utility.UIBase
+    public class ProgressUI :UIBase
     {
 
         [SerializeField] private Text m_Title;

@@ -102,36 +102,7 @@ namespace Utility
             {
                 Debug.LogWarning("<color=yellow>" + "[FileRequestManager] File Data Json is null or empty" + "</color>");
             }
-
-                
-                    
-
-                    /*Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Requesting... " + m_FileData.Data.Count + " Files " + "</color>");
-                    for (int i = 0; i < m_FileData.Data.Count; i++)
-                    {
-                        if (string.IsNullOrEmpty(m_FileData.Data[i].URL))
-                        {
-                            continue;
-                        }
-
-                        // Request
-                        Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Requesting: " + (i + 1) + "/" + m_FileData.Data.Count + " : URL: " + m_FileData.Data[i].URL + " Filename: " + m_FileData.Data[i].FileName + "</color>");
-                        WWW www = new WWW(m_FileData.Data[i].URL);
-                        while (!www.isDone)
-                        {
-                            m_PercentProgress = www.progress * 100.0f;
-                            m_ProgressText = m_PercentProgress.ToString() + " % ";
-                            yield return null;
-                        }
-
-                        m_PercentProgress = www.progress * 100.0f;
-                        m_ProgressText = m_PercentProgress.ToString() + " % ";
-
-                        m_FileData.Data[i].Data = www.text;
-
-                        Debug.LogWarning("<color=yellow>" + "[FileRequestManager] Got: "+ www.text + "</color>");
-                    }*/
-                       
+            
         }
 
     }
