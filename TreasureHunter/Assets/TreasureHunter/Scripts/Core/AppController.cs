@@ -78,8 +78,8 @@ namespace TreasureHunt
 
             }else
             {
-                m_UI.Progress.Title = "Wait Downloading data...";
-                m_UI.Progress.SetProgress(0);
+                //m_UI.Progress.Title = "Wait Downloading data...";
+                m_UI.Progress.SetProgress("Downloading\n0%",0);
                 m_UI.Progress.Show();
                 StartCoroutine(Init());
             }
@@ -96,11 +96,14 @@ namespace TreasureHunt
             // Request files
             yield return m_FileManager.RequestFiles();
 
-            m_UI.Progress.SetProgress(100);
+            m_UI.Progress.SetProgress("Downloading\n100%", 100);
+
+            //m_UI.Progress.SetProgress(100);
 
             yield return new WaitForSeconds(1.0f);
 
-            m_UI.Progress.Title = "Completed! Ready to play =)";
+           // m_UI.Progress.Title = "Completed! Ready to play =)";
+            m_UI.Progress.SetProgress("Ready to play =)", 100);
             yield return new WaitForSeconds(1.0f);
 
             m_UI.Progress.Hide();

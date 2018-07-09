@@ -87,12 +87,13 @@ namespace Utility
             while (!wwwFile.isDone)
             {
                 int progress = (int)(wwwFile.progress * 100);
-                TreasureHunt.AppController.Instance.UI.Progress.SetProgress(progress);
+
+                TreasureHunt.AppController.Instance.UI.Progress.SetProgress("Downloading\n"+ progress+ "%", progress);
             }
 
             yield return wwwFile;
 
-            TreasureHunt.AppController.Instance.UI.Progress.SetProgress(100);
+            TreasureHunt.AppController.Instance.UI.Progress.SetProgress("Downloading\n" + 100 + "%", 100);
 
             if (!string.IsNullOrEmpty(wwwFile.text))
             {
