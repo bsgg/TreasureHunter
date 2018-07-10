@@ -85,7 +85,7 @@ namespace TreasureHunt
             }
         }
 
-        private void OkPopup(Utility.ButtonWithText Button)
+        private void OkPopup(ButtonWithText Button)
         {
             Application.Quit();
         }
