@@ -30,17 +30,15 @@ namespace TreasureHunt
         #endregion Instance
 
         private enum ESTATE { NONE, INTRO, GAME, END };
-        private ESTATE m_State = ESTATE.NONE;
+        private ESTATE state = ESTATE.NONE;
 
+        private FileRequestManager fileManager;
 
-        [SerializeField] private FileRequestManager m_FileManager;
-
-        [SerializeField] private UIController m_UI;
+        [SerializeField] private UIController ui;
         public UIController UI
         {
-            get { return m_UI; }
+            get { return ui; }
         }
-        //[SerializeField] private List<TreasureHunterTrackableEvent> m_ListMarkers;
 
         // [Header("Egg prefabs")]
         [SerializeField] private List<GameObject> m_ListEggPrefabs;
@@ -52,26 +50,23 @@ namespace TreasureHunt
 
         private void Awake()
         {
-            if (m_FileManager == null)
-            {
-                m_FileManager = GetComponent<FileRequestManager>();
-            }
+            fileManager = GetComponent<FileRequestManager>();
         }
 
         void Start()
         {
             // Create data
-            m_State = ESTATE.NONE;
+            state = ESTATE.NONE;
 
             m_NumberCluesFound = 0;
 
-            m_UI.HideAll();  
+            ui.HideAll();  
 
             // Check internet
             if (Application.internetReachability == NetworkReachability.NotReachable) 
             {
                 Debug.Log("No Internet");
-                m_UI.PopupButtons.ShowPopup("", "Please connect to internet and restart Treasur Hunt to download the data.",
+                ui.PopupButtons.ShowPopup("", "Please connect to internet and restart Treasur Hunt to download the data.",
                     "Restart App", OkPopup,
                     string.Empty, null,
                     string.Empty, null);
@@ -79,8 +74,8 @@ namespace TreasureHunt
             }else
             {
                 //m_UI.Progress.Title = "Wait Downloading data...";
-                m_UI.Progress.SetProgress("Downloading\n0%",0);
-                m_UI.Progress.Show();
+                ui.Progress.SetProgress("Downloading\n0%",0);
+                ui.Progress.Show();
                 StartCoroutine(Init());
             }
         }
@@ -93,55 +88,54 @@ namespace TreasureHunt
 
         private IEnumerator Init()
         {
+
             // Request files
-            yield return m_FileManager.RequestFiles();
+            yield return fileManager.RequestFiles();
 
-            m_UI.Progress.SetProgress("Downloading\n100%", 100);
-
-            //m_UI.Progress.SetProgress(100);
+            ui.Progress.SetProgress("Clues downloaded!", 100);
 
             yield return new WaitForSeconds(1.0f);
 
-           // m_UI.Progress.Title = "Completed! Ready to play =)";
-            m_UI.Progress.SetProgress("Ready to play =)", 100);
+            // m_UI.Progress.Title = "Completed! Ready to play =)";
+            ui.Progress.SetProgress("Ready to play =)", 100);
+
             yield return new WaitForSeconds(1.0f);
 
-            m_UI.Progress.Hide();
-
+            ui.Progress.Hide();
 
             // Intro 
             m_MessageID = 0;
-            m_State = ESTATE.INTRO;
+            state = ESTATE.INTRO;
 
-            m_UI.MessageUI.Show();
-            m_UI.MessageUI.DisableButton();
-            m_UI.MessageUI.SetMessage("Instructions", m_FileManager.Data.Intro[m_MessageID], 0.3f);
-            m_UI.MessageUI.OnMessageEnd += OnEndOfMessage;
+            ui.MessageUI.Show();
+            ui.MessageUI.DisableButton();
+            ui.MessageUI.SetMessage("Instructions", fileManager.data.Intro[m_MessageID], 0.3f);
+            ui.MessageUI.OnMessageEnd += OnEndOfMessage;
         }
 
         private void OnEndOfMessage()
         {
-            m_UI.MessageUI.EnableButton();
+            ui.MessageUI.EnableButton();
         }
 
         public void OnMessageTap()
         {
-            m_UI.MessageUI.DisableButton();
-            switch (m_State)
+            ui.MessageUI.DisableButton();
+            switch (state)
             {
                 case ESTATE.INTRO:
 
                     m_MessageID++;
 
-                    if (m_MessageID < m_FileManager.Data.Intro.Count)
+                    if (m_MessageID < fileManager.data.Intro.Count)
                     {
-                        m_UI.MessageUI.SetMessage("Instructions", m_FileManager.Data.Intro[m_MessageID], 0.3f);
+                        ui.MessageUI.SetMessage("Instructions", fileManager.data.Intro[m_MessageID], 0.3f);
                     }else
                     {
                         // Show first clue
                         m_MessageID = 0;
-                        m_State = ESTATE.GAME;
-                        m_UI.MessageUI.SetMessage("Look for all the clues!", m_FileManager.Data.Clues[m_MessageID], 0.3f);
+                        state = ESTATE.GAME;
+                        ui.MessageUI.SetMessage("Look for all the clues!", fileManager.data.Clues[m_MessageID], 0.3f);
                     }
                 break;
 
@@ -158,24 +152,24 @@ namespace TreasureHunt
         public void OnMarkerFound(string id, int markerID)
         {
             // Avoid scan when no Game state
-            if (m_State != ESTATE.GAME) return;
+            if (state != ESTATE.GAME) return;
             // Find clue
-            if ((markerID >= 0) && (markerID < m_FileManager.Data.Clues.Count))
+            if ((markerID >= 0) && (markerID < fileManager.data.Clues.Count))
             {
                 //m_FileManager.Data.Clues[markerID]
                  m_NumberCluesFound++;
-                if (m_NumberCluesFound < m_FileManager.Data.Clues.Count)
+                if (m_NumberCluesFound < fileManager.data.Clues.Count)
                 {
                     // Instance egg and set new message
                     InstanceObject();
-                    m_UI.MessageUI.SetMessage("Clue " + id, m_FileManager.Data.Clues[markerID], 0.3f);
+                    ui.MessageUI.SetMessage("Clue " + id, fileManager.data.Clues[markerID], 0.3f);
 
                 }else
                 {
                     // End clues
                     m_MessageID = 0;
-                    m_State = ESTATE.END;
-                    m_UI.MessageUI.SetMessage("Game over", m_FileManager.Data.EndOfGame[m_MessageID], 0.3f);
+                    state = ESTATE.END;
+                    ui.MessageUI.SetMessage("Game over", fileManager.data.EndOfGame[m_MessageID], 0.3f);
                 }
             }
             
@@ -210,8 +204,5 @@ namespace TreasureHunt
                 Application.Quit();
             }
         }
-        
-        
-       
     }
 }

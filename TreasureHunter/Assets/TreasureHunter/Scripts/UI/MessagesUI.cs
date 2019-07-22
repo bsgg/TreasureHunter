@@ -12,8 +12,8 @@ namespace TreasureHunt
         public delegate void MessagesAction();
         public event MessagesAction OnMessageEnd;
 
-        [SerializeField] private Text m_Title;
-        [SerializeField] private ScrollTextUI           m_ScrollMessages;
+        [SerializeField] private Text title;
+        [SerializeField] private ScrollTextUI           scrollMessages;
 
         private int                                     m_indexLetter = 0;
         private string                                  m_MessageText = "";
@@ -24,9 +24,9 @@ namespace TreasureHunt
 
         public override void Show()
         {
-            m_Title.text = "";
+            title.text = "";
 
-            m_ScrollMessages.Description = "";
+            scrollMessages.Description = "";
 
             DisableButton();
 
@@ -44,11 +44,11 @@ namespace TreasureHunt
         }
 
 
-        public void SetMessage(string title, string text, float endPause = 0.1f)
+        public void SetMessage(string _title, string text, float endPause = 0.1f)
         {
-            m_Title.text = title;
+            title.text = _title;
 
-            m_ScrollMessages.Description = "";
+            scrollMessages.Description = "";
 
             m_MessageText = text;
 
@@ -61,7 +61,7 @@ namespace TreasureHunt
             }
             else
             {
-                m_ScrollMessages.Description = text;
+                scrollMessages.Description = text;
             }
             
         }
@@ -72,7 +72,7 @@ namespace TreasureHunt
             {
                 if (m_indexLetter < m_MessageText.Length)
                 {
-                    m_ScrollMessages.Description += m_MessageText[m_indexLetter];
+                    scrollMessages.Description += m_MessageText[m_indexLetter];
                 }
 
                 yield return new WaitForSeconds(m_SpeedBetweenLetters);
@@ -87,6 +87,7 @@ namespace TreasureHunt
             while (m_indexLetter < m_MessageText.Length);
             // Pause
             yield return new WaitForSeconds(endPause);
+
             if (OnMessageEnd != null)
             {
                 OnMessageEnd();

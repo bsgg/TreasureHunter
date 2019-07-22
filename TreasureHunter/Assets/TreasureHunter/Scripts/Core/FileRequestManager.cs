@@ -1,7 +1,9 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Utility
 {
@@ -46,33 +48,18 @@ namespace Utility
         [SerializeField]
         private string m_FileDataUrl = "http://beatrizcv.com/Data/FileData.json";
 
-        [SerializeField]
-        private TreasureData m_Data;
-        public TreasureData Data
-        {
-            get
-            {
-                return m_Data;
-            }
-        }
+        public TreasureData data { get; set; }
 
-        private float m_PercentProgress;
-        private string m_ProgressText;
-
-        public string ProgressText
-        {
-            get { return m_ProgressText; }
-        }
-        
+        private float percentProgress;
+        public string progressText { get; private set; }
+       
 
         public IEnumerator RequestFiles()
         {
-            m_Data = new TreasureData();
+            data = new TreasureData();
 
-            
-
-            m_PercentProgress = 0.0f;
-            m_ProgressText = m_PercentProgress.ToString() + " % ";
+            percentProgress = 0.0f;
+            progressText = percentProgress.ToString() + " % ";
 
             if (string.IsNullOrEmpty(m_FileDataUrl))
             {
@@ -80,29 +67,28 @@ namespace Utility
                 yield return null;
             }
 
-            WWW wwwFile = new WWW(m_FileDataUrl);
+            TreasureHunt.AppController.Instance.UI.Progress.SetProgress("Downloading Clues...", 0);
 
-           
-
-            while (!wwwFile.isDone)
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(m_FileDataUrl))
             {
-                int progress = (int)(wwwFile.progress * 100);
+                yield return webRequest.SendWebRequest();
 
-                TreasureHunt.AppController.Instance.UI.Progress.SetProgress("Downloading\n"+ progress+ "%", progress);
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogWarning("<color=yellow>" + "[FileRequestManager] There was an error: " + webRequest.isNetworkError.ToString() + "</color>");
+
+                    yield return null;
+                }
+
+                DownloadHandler handler = webRequest.downloadHandler;
+
+                Debug.LogWarning("<color=cyan>" + "[FileRequestManager] Received: " + handler.text + "</color>");
+
+                data = JsonUtility.FromJson<TreasureData>(handler.text);
+
             }
 
-            yield return wwwFile;
-
-            TreasureHunt.AppController.Instance.UI.Progress.SetProgress("Downloading\n" + 100 + "%", 100);
-
-            if (!string.IsNullOrEmpty(wwwFile.text))
-            {
-                m_Data = JsonUtility.FromJson<TreasureData>(wwwFile.text);
-            }else
-            {
-                Debug.LogWarning("<color=yellow>" + "[FileRequestManager] File Data Json is null or empty" + "</color>");
-            }
-            
+            TreasureHunt.AppController.Instance.UI.Progress.SetProgress("Clues downloaed", 100);           
         }
 
     }
